@@ -4,7 +4,7 @@ import sys
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Socket Successfully Created")
 
-port = 12345
+port = 12347
 s.bind(('', port))
 print("Socket binded to {}".format(port))
 
@@ -15,7 +15,7 @@ while True:
     c, addr = s.accept()
     print("Got connection from {}".format(addr))
 
-    c.send("Thank you for connecting")
+    print(c.recv(1024).decode())
 
     c.close()
     
