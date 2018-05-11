@@ -134,6 +134,7 @@ def backward3():
 
     
 # ------------------------#
+# MAIN LOOP #
 #-------------------------#
 try:
     c, addr = s.accept()
@@ -157,7 +158,7 @@ try:
             zGyro -= 65536
 
         stringToSplit = c.recv(1024).decode()
-        print(stringToSplit)
+        print("String received is {}".format(stringToSplit))
         split = stringToSplit.split("#")
         coords = split[0].split(",")
         xAccl = coords[0]
@@ -179,7 +180,38 @@ try:
         print("Right Thumb = {}".format(rt))
         print("Right Index = {}".format(ri))
         print("Right Middle = {}".format(rm))
-        time.sleep(0.05)
+
+        #--------------------#
+        # CONTROL ALGORITHM  #
+        #--------------------#
+        if (lt == 1):
+            # motor 1
+            if (xAccl > 600):
+                forward1()
+            else if (xAccl < -600):
+                backward1()
+
+            # motor 2   
+            else if ((yAccl < -400) && (xAccl > 400)):
+                forward2()
+            else if ((yAccl > 400) && (xAccl < -400)):
+                backward2()
+
+            # motor 3
+            else if ((yAccl > 400) && (xAccl > 400)):
+                forward3()
+            else if ((yAccl < -400) && (xAccl < -400)):
+                backward3()
+
+        else:
+            if (ri == 1):
+                clock()
+            else if (li == 1):
+                anticlock()
+            else:
+                allStop()
+                
+        time.sleep(2.00)
         
 
 finally:
