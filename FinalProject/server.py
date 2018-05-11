@@ -66,25 +66,25 @@ def stop3():
 
 # CLOCKWISE FUNCTION FOR ALL MOTORS
 def cw1():
-    GPIO.output(inA1, False)
-    GPIO.output(inB1, True)
+    GPIO.output(inA1, True)
+    GPIO.output(inB1, False)
 def cw2():
-    GPIO.output(inA2, False)
-    GPIO.output(inB2, True)
+    GPIO.output(inA2, True)
+    GPIO.output(inB2, False)
 def cw3():
-    GPIO.output(inA3, False)
-    GPIO.output(inB3, True)
+    GPIO.output(inA3, True)
+    GPIO.output(inB3, False)
 
 # ANTICLOCKWISE FUNCTION FOR ALL MOTORS
 def acw1():
-    GPIO.output(inA1, True)
-    GPIO.output(inB1, False)
+    GPIO.output(inA1, False)
+    GPIO.output(inB1, True)
 def acw2():
-    GPIO.output(inA2, True)
-    GPIO.output(inB2, False)
+    GPIO.output(inA2, False)
+    GPIO.output(inB2, True)
 def acw3():
-    GPIO.output(inA3, True)
-    GPIO.output(inB3, False)
+    GPIO.output(inA3, False)
+    GPIO.output(inB3, True)
 
 # STOP 
 def allStop():
@@ -97,18 +97,25 @@ def clock():
     cw1()
     cw2()
     cw3()
+    p2.ChangeDutyCycle(50)
+    p3.ChangeDutyCycle(50)
+    
 
 # ROTATION ANTICLOCKWISE
 def anticlock():
     acw1()
     acw2()
     acw3()
+    p2.ChangeDutyCycle(50)
+    p3.ChangeDutyCycle(50)
     
 # FORWARD ALL DIRECTIONS
-def forward1():
+def forward():
     stop1()
-    acw2()
-    cw3()
+    cw2()
+    acw3()
+    p2.ChangeDutyCycle(50)
+    p3.ChangeDutyCycle(50)
 def forward2():
     stop2()
     cw1()
@@ -119,10 +126,12 @@ def forward3():
     cw2()
 
 # BACKWARD ALL DIRECTIONS
-def backward1():
+def backward():
     stop1()
-    cw2()
-    acw3()
+    acw2()
+    cw3()
+    p2.ChangeDutyCycle(50)
+    p3.ChangeDutyCycle(50)
 def backward2():
     stop2()
     acw1()
@@ -131,6 +140,22 @@ def backward3():
     stop3()
     cw1()
     acw2()
+    
+# FOUR DIRECTION NOW BECAUSE PARKER
+def right():
+    cw1()
+    acw2()
+    acw3()
+    p2.ChangeDutyCycle(17)
+    p3.ChangeDutyCycle(17)
+    
+def left():
+    acw1()
+    cw2()
+    cw3()
+    p2.ChangeDutyCycle(17)
+    p3.ChangeDutyCycle(17)
+
 
     
 # ------------------------#
@@ -141,7 +166,7 @@ try:
     print("Got connection from {}".format(addr))
         
     while True:
-        bus.write_byte_data(0x69, 0x3E, 0x01)
+        '''bus.write_byte_data(0x69, 0x3E, 0x01)
         bus.write_byte_data(0x69, 0x16, 0x18)
         data = bus.read_i2c_block_data(0x69, 0x1D, 6)
 
@@ -156,20 +181,23 @@ try:
         zGyro = data[4] * 256 + data[5]
         if zGyro > 32767 :
             zGyro -= 65536
-
+        '''
         stringToSplit = c.recv(1024).decode()
         print("String received is {}".format(stringToSplit))
         split = stringToSplit.split("#")
+        if (len(split) > 2):
+          time.sleep(0.05)
+          continue
         coords = split[0].split(",")
-        xAccl = coords[0]
-        yAccl = coords[1]
-        zAccl = coords[2]
-        lt = coords[3]
-        li = coords[4]
-        lm = coords[5]
-        rt = coords[6]
-        ri = coords[7]
-        rm = coords[8]
+        xAccl = int(coords[0])
+        yAccl = int(coords[1])
+        zAccl = int(coords[2])
+        lt = int(coords[3])
+        li = int(coords[4])
+        lm = int(coords[5])
+        rt = int(coords[6])
+        ri = int(coords[7])
+        rm = int(coords[8])
         
         print("X Accl = {}".format(xAccl))
         print("Y Accl = {}".format(yAccl))
@@ -186,32 +214,41 @@ try:
         #--------------------#
         if (lt == 1):
             # motor 1
-            if (xAccl > 600):
-                forward1()
-            else if (xAccl < -600):
-                backward1()
-
+            if (xAccl < -500):
+                forward()
+            elif (xAccl > 475):
+                backward()
+            elif (yAccl > 900):
+                right()
+            elif (yAccl < 500):
+                left()
+            elif (xAccl > -500) and (xAccl < 475) and (yAccl < 900) and (yAccl > 500):
+                print("ENTERED ALL STOP")
+                allStop()
+            
+            
             # motor 2   
-            else if ((yAccl < -400) && (xAccl > 400)):
+            '''elif ((yAccl < -400) and (xAccl > 400)):
                 forward2()
-            else if ((yAccl > 400) && (xAccl < -400)):
+            elif ((yAccl > 400) and (xAccl < -400)):
                 backward2()
 
             # motor 3
-            else if ((yAccl > 400) && (xAccl > 400)):
+            elif ((yAccl > 400) and (xAccl > 400)):
                 forward3()
-            else if ((yAccl < -400) && (xAccl < -400)):
-                backward3()
+            elif ((yAccl < -400) and (xAccl < -400)):
+                backward3() '''
 
         else:
             if (ri == 1):
+                print("ENTERED ELSE")
                 clock()
-            else if (li == 1):
+            elif (li == 1):
                 anticlock()
             else:
                 allStop()
                 
-        time.sleep(2.00)
+        time.sleep(0.05)
         
 
 finally:
