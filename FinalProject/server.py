@@ -160,9 +160,9 @@ try:
         print(stringToSplit)
         split = stringToSplit.split("#")
         coords = split[0].split(",")
-        x = coords[0]
-        y = coords[1]
-        z = coords[2]
+        xAccl = coords[0]
+        yAccl = coords[1]
+        zAccl = coords[2]
         lt = coords[3]
         li = coords[4]
         lm = coords[5]
@@ -170,9 +170,9 @@ try:
         ri = coords[7]
         rm = coords[8]
         
-        print("X Accl = {}".format(x))
-        print("Y Accl = {}".format(y))
-        print("Z Accl = {}".format(z))
+        print("X Accl = {}".format(xAccl))
+        print("Y Accl = {}".format(yAccl))
+        print("Z Accl = {}".format(zAccl))
         print("Left Thumb = {}".format(lt))
         print("Left Index = {}".format(li))
         print("Left Middle = {}".format(lm))
