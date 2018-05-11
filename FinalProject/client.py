@@ -5,25 +5,25 @@ import time
 
 GPIO.setmode(GPIO.BCM)
 
-lt = 5
-li = 6
-lm = 13
-rt = 19
-ri = 26
-rm = 21
+prm = 5
+plm = 6
+pri = 13
+pli = 19
+plt = 26
+prt = 21
 
-GPIO.setup(lt, GPIO.IN)
-GPIO.setup(li, GPIO.IN)
-GPIO.setup(lm, GPIO.IN)
-GPIO.setup(rt, GPIO.IN)
-GPIO.setup(ri, GPIO.IN)
-GPIO.setup(rm, GPIO.IN)
+GPIO.setup(plt, GPIO.IN)
+GPIO.setup(pli, GPIO.IN)
+GPIO.setup(plm, GPIO.IN)
+GPIO.setup(prt, GPIO.IN)
+GPIO.setup(pri, GPIO.IN)
+GPIO.setup(prm, GPIO.IN)
 
 #SOCKET + I2C STUFF
 bus = smbus.SMBus(1)
 s = socket.socket()
 port = 12345
-s.connect(('127.0.0.1', port))
+s.connect(('10.9.221.184', port))
 
 try:
     while True:
@@ -43,20 +43,30 @@ try:
         zAccl = (data[5] * 256 + data[6]) / 16
         if zAccl > 2047:
             zAccl -= 4096
-        
-        lt = GPIO.input(lt)
-        li = GPIO.input(li)
-        lm = GPIO.input(lm)
-        rt = GPIO.input(rt)
-        ri = GPIO.input(rI)
-        rm = GPIO.input(rM)
-        
-        stringToSend = str(xAccl) + "," + str(yAccl) + "," + str(zAccl) +
-                       str(lt) + "," + str(li) + "," + str(lm) + "," +
-                       str(rt) + "," + str(ri) + "," + str(rm) + "," + "#"
+            
+        lt = GPIO.input(plt)
+        li = GPIO.input(pli)
+        lm = GPIO.input(plm)
+        rt = GPIO.input(prt)
+        ri = GPIO.input(pri)
+        rm = GPIO.input(prm)
+
+        print("X Accl = {}".format(xAccl))
+        print("Y Accl = {}".format(yAccl))
+        print("Z Accl = {}".format(zAccl))
+        print("Left Thumb = {}".format(lt))
+        print("Left Index = {}".format(li))
+        print("Left Middle = {}".format(lm))
+        print("Right Thumb = {}".format(rt))
+        print("Right Index = {}".format(ri))
+        print("Right Middle = {}".format(rm))
+        stringToSend = str(xAccl) + "," + str(yAccl) + "," + str(zAccl) + "," + \
+                       str(lt) + "," + str(li) + "," + str(lm) + "," + \
+                       str(rt) + "," + str(ri) + "," + str(rm) + "#"
+        print("String Sent is: {}".format(stringToSend))
         s.send(stringToSend.encode())
         print("sent all")
-        time.sleep(0.05)
+        time.sleep(2.00)
         
 finally:
     print("Cleaning up")
