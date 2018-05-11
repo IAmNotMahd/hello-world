@@ -66,7 +66,7 @@ try:
         print("String Sent is: {}".format(stringToSend))
         s.send(stringToSend.encode())
         print("sent all")
-        time.sleep(2.00)
+        time.sleep(0.05)
         
 finally:
     print("Cleaning up")
