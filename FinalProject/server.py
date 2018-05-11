@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import socket
+import smbus
 import sys
 import time
 
@@ -39,6 +40,7 @@ GPIO.output(inB2, False)
 GPIO.output(inA3, False)
 GPIO.output(inB3, False)
 
+bus = smbus.SMBus(1)
 
 # SOCKET STUFF
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -138,18 +140,47 @@ try:
     print("Got connection from {}".format(addr))
         
     while True:
-        x = c.recv(1024).decode()
-        print("X Accl = {}".format(x))
-        time.sleep(0.01)
-        y = c.recv(1024).decode()
-        print("Y Accl = {}".format(y))
-        time.sleep(0.01)
-        z = c.recv(1024).decode()
-        print("Z Accl = {}".format(z))
-        time.sleep(0.01)
-        print("*********************")
+        bus.write_byte_data(0x69, 0x3E, 0x01)
+        bus.write_byte_data(0x69, 0x16, 0x18)
+        data = bus.read_i2c_block_data(0x69, 0x1D, 6)
+
+        xGyro = data[0] * 256 + data[1]
+        if xGyro > 32767 :
+            xGyro -= 65536
+
+        yGyro = data[2] * 256 + data[3]
+        if yGyro > 32767 :
+            yGyro -= 65536
+
+        zGyro = data[4] * 256 + data[5]
+        if zGyro > 32767 :
+            zGyro -= 65536
+
+        stringToSplit = c.recv(1024).decode()
+        print(stringToSplit)
+        split = stringToSplit.split("#")
+        coords = split[0].split(",")
+        x = coords[0]
+        y = coords[1]
+        z = coords[2]
+        lt = coords[3]
+        li = coords[4]
+        lm = coords[5]
+        rt = coords[6]
+        ri = coords[7]
+        rm = coords[8]
         
+        print("X Accl = {}".format(x))
+        print("Y Accl = {}".format(y))
+        print("Z Accl = {}".format(z))
+        print("Left Thumb = {}".format(lt))
+        print("Left Index = {}".format(li))
+        print("Left Middle = {}".format(lm))
+        print("Right Thumb = {}".format(rt))
+        print("Right Index = {}".format(ri))
+        print("Right Middle = {}".format(rm))
         time.sleep(0.05)
+        
 
 finally:
     print("Cleaning up")

@@ -5,19 +5,19 @@ import time
 
 GPIO.setmode(GPIO.BCM)
 
-leftTh = 5
-leftIn = 6
-leftMi = 13
-rightTh = 19
-rightIn = 26
-rightMi = 21
+lt = 5
+li = 6
+lm = 13
+rt = 19
+ri = 26
+rm = 21
 
-GPIO.setup(leftTh, GPIO.IN)
-GPIO.setup(leftIn, GPIO.IN)
-GPIO.setup(leftMi, GPIO.IN)
-GPIO.setup(rightTh, GPIO.IN)
-GPIO.setup(rightIn, GPIO.IN)
-GPIO.setup(rightMi, GPIO.IN)
+GPIO.setup(lt, GPIO.IN)
+GPIO.setup(li, GPIO.IN)
+GPIO.setup(lm, GPIO.IN)
+GPIO.setup(rt, GPIO.IN)
+GPIO.setup(ri, GPIO.IN)
+GPIO.setup(rm, GPIO.IN)
 
 #SOCKET + I2C STUFF
 bus = smbus.SMBus(1)
@@ -44,17 +44,21 @@ try:
         if zAccl > 2047:
             zAccl -= 4096
         
-        s.sendall(str(xAccl).encode())
-        print("sent x")
-        time.sleep(0.01)
-        s.sendall(str(yAccl).encode())
-        print("sent y")
-        time.sleep(0.01)
-        s.sendall(str(zAccl).encode())
-        print("sent z")
-        time.sleep(0.01)
+        lt = GPIO.input(lt)
+        li = GPIO.input(li)
+        lm = GPIO.input(lm)
+        rt = GPIO.input(rt)
+        ri = GPIO.input(rI)
+        rm = GPIO.input(rM)
         
+        stringToSend = str(xAccl) + "," + str(yAccl) + "," + str(zAccl) +
+                       str(lt) + "," + str(li) + "," + str(lm) + "," +
+                       str(rt) + "," + str(ri) + "," + str(rm) + "," + "#"
+        s.send(stringToSend.encode())
+        print("sent all")
         time.sleep(0.05)
         
 finally:
+    print("Cleaning up")
     s.close()
+    GPIO.cleanup()
