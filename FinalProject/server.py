@@ -15,6 +15,9 @@ inB2 = 26
 inA3 = 17
 pwm3 = 27
 inB3 = 22
+led1 = 18
+led2 = 15
+led3 = 14
 
 GPIO.setup(inA1, GPIO.OUT)
 GPIO.setup(pwm1, GPIO.OUT)
@@ -25,6 +28,9 @@ GPIO.setup(inB2, GPIO.OUT)
 GPIO.setup(inA3, GPIO.OUT)
 GPIO.setup(pwm3, GPIO.OUT)
 GPIO.setup(inB3, GPIO.OUT)
+GPIO.setup(led1, GPIO.OUT)
+GPIO.setup(led2, GPIO.OUT)
+GPIO.setup(led3, GPIO.OUT)
 
 p1 = GPIO.PWM(pwm1, 100)
 p2 = GPIO.PWM(pwm2, 100)
@@ -39,6 +45,10 @@ GPIO.output(inA2, False)
 GPIO.output(inB2, False)
 GPIO.output(inA3, False)
 GPIO.output(inB3, False)
+GPIO.output(led1, False)
+GPIO.output(led2, False)
+GPIO.output(led3, False)
+
 
 bus = smbus.SMBus(1)
 
@@ -116,14 +126,6 @@ def forward():
     acw3()
     p2.ChangeDutyCycle(50)
     p3.ChangeDutyCycle(50)
-def forward2():
-    stop2()
-    cw1()
-    acw3()
-def forward3():
-    stop3()
-    acw1()
-    cw2()
 
 # BACKWARD ALL DIRECTIONS
 def backward():
@@ -132,14 +134,6 @@ def backward():
     cw3()
     p2.ChangeDutyCycle(50)
     p3.ChangeDutyCycle(50)
-def backward2():
-    stop2()
-    acw1()
-    cw3()
-def backward3():
-    stop3()
-    cw1()
-    acw2()
     
 # FOUR DIRECTION NOW BECAUSE PARKER
 def right():
@@ -213,35 +207,65 @@ try:
         # CONTROL ALGORITHM  #
         #--------------------#
         if (lt == 1):
+            GPIO.output(led1, True)
+            GPIO.output(led2, False)
+            GPIO.output(led3, False)
             # motor 1
             if (xAccl < -500):
                 forward()
+                if (rm == 1):
+                    cw1()
+                    p3.ChangeDutyCycle(30)
+                elif (lm == 1):
+                    acw1()
+                    p2.ChangeDutyCycle(30)
             elif (xAccl > 475):
                 backward()
+                if (rm == 1):
+                    acw1()
+                    p3.ChangeDutyCycle(30)
+                elif (lm == 1):
+                    cw1()
+                    p2.ChangeDutyCycle(30)
             elif (yAccl > 900):
                 right()
             elif (yAccl < 500):
                 left()
             elif (xAccl > -500) and (xAccl < 475) and (yAccl < 900) and (yAccl > 500):
-                print("ENTERED ALL STOP")
                 allStop()
             
-            
-            # motor 2   
-            '''elif ((yAccl < -400) and (xAccl > 400)):
-                forward2()
-            elif ((yAccl > 400) and (xAccl < -400)):
-                backward2()
-
-            # motor 3
-            elif ((yAccl > 400) and (xAccl > 400)):
-                forward3()
-            elif ((yAccl < -400) and (xAccl < -400)):
-                backward3() '''
-
-        else:
+        elif (rt == 1):
+            GPIO.output(led1, False)
+            GPIO.output(led2, True)
+            GPIO.output(led3, False)
+            if (li == 1):
+                forward()
+                if (rm == 1):
+                    p3.ChangeDutyCycle(30)
+                    cw1()
+                elif (lm == 1):
+                    acw1()
+                    p2.ChangeDutyCycle(30)
+            elif (ri == 1):
+                backward()
+                if (rm == 1):
+                    acw1()
+                    p3.ChangeDutyCycle(30)
+                elif (lm == 1):
+                    cw1()
+                    p2.ChangeDutyCycle(30)
+            elif (lm == 1):
+                left()
+            elif (rm == 1):
+                right()
+            else:
+                allStop()
+        
+        elif (lt == 0):
+            GPIO.output(led3, True)
+            GPIO.output(led2, False)
+            GPIO.output(led1, False)
             if (ri == 1):
-                print("ENTERED ELSE")
                 clock()
             elif (li == 1):
                 anticlock()
